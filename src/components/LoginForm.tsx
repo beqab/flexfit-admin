@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -24,6 +25,7 @@ interface LoginFormValues {
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const initialValues: LoginFormValues = {
     email: "",
@@ -38,9 +40,14 @@ export default function LoginForm() {
       
      
       console.log("Login attempt:", values);
-      alert("Login successful! (This is a demo)");
       
+      // In a real app, you would:
+      // 1. Call your authentication API
+      // 2. Store the token
+      // 3. Redirect to dashboard
       
+      // Redirect to dashboard after successful login
+      router.push("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
       alert("Login failed. Please try again.");
