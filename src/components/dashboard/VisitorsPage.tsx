@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,12 +32,13 @@ import {
   Filter,
   MoreHorizontal,
   UserPlus,
-  QrCode,
   Mail,
   Phone,
   Calendar,
   CreditCard,
 } from "lucide-react";
+import GenerateQrCode from "@/components/generateQrCode";
+import { useGetCurrentUser } from "@/lib/hooks/profile/useGetCurrentUser";
 
 // Mock data
 const visitors = [
@@ -107,11 +114,15 @@ const stats = {
 export default function VisitorsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const { data: currentUser } = useGetCurrentUser();
 
+  console.log("currentUser", currentUser);
   const filteredVisitors = visitors.filter((visitor) => {
-    const matchesSearch = visitor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         visitor.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === "all" || visitor.status === filterStatus;
+    const matchesSearch =
+      visitor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      visitor.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter =
+      filterStatus === "all" || visitor.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
@@ -143,13 +154,15 @@ export default function VisitorsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Visitors</h1>
-          <p className="text-gray-600">Manage your gym members and track their activity</p>
+          <p className="text-gray-600">
+            Manage your gym members and track their activity
+          </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <QrCode className="mr-2 h-4 w-4" />
-            Generate QR
-          </Button>
+          <GenerateQrCode
+            facilityId={currentUser?.facility?._id || ""}
+            facilityName={currentUser?.facility?.name || ""}
+          />
           <Button>
             <UserPlus className="mr-2 h-4 w-4" />
             Add Visitor
@@ -161,17 +174,23 @@ export default function VisitorsPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Visitors</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Visitors
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalVisitors.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {stats.totalVisitors.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">All time</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Members</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Active Members
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeVisitors}</div>
@@ -181,17 +200,23 @@ export default function VisitorsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New This Month</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              New This Month
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.newThisMonth}</div>
-            <p className="text-xs text-muted-foreground">+15% from last month</p>
+            <p className="text-xs text-muted-foreground">
+              +15% from last month
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Visits/Week</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Avg Visits/Week
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.avgVisitsPerWeek}</div>
@@ -206,7 +231,9 @@ export default function VisitorsPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Visitor List</CardTitle>
-              <CardDescription>Manage and view all your gym members</CardDescription>
+              <CardDescription>
+                Manage and view all your gym members
+              </CardDescription>
             </div>
             <div className="flex gap-2">
               <div className="relative">
@@ -273,7 +300,9 @@ export default function VisitorsPage() {
                     </div>
                   </TableCell>
                   <TableCell>{getStatusBadge(visitor.status)}</TableCell>
-                  <TableCell>{getMembershipBadge(visitor.membershipType)}</TableCell>
+                  <TableCell>
+                    {getMembershipBadge(visitor.membershipType)}
+                  </TableCell>
                   <TableCell>{visitor.totalVisits}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
