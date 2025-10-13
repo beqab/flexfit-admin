@@ -12,16 +12,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Download, QrCode as QrCodeIcon } from "lucide-react";
+import { useGetCurrentUser } from "@/lib/hooks/profile/useGetCurrentUser";
+import toast from "react-hot-toast";
 
-interface GenerateQrCodeProps {
-  facilityId: string;
-  facilityName?: string;
-}
+export default function GenerateQrCode() {
+  const { data: currentUser } = useGetCurrentUser();
+  const facilityId = currentUser?.facility?._id;
+  const facilityName = currentUser?.facility?.name || "";
 
-export default function GenerateQrCode({
-  facilityId, // Static ID for now, will be dynamic later
-  facilityName = "",
-}: GenerateQrCodeProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -32,6 +30,11 @@ export default function GenerateQrCode({
     // Wait for canvas to be available
     let attempts = 0;
     const maxAttempts = 10;
+
+    if (!facilityId) {
+      toast.error("Facility ID not found");
+      return;
+    }
 
     while (!canvasRef.current && attempts < maxAttempts) {
       console.log(`Waiting for canvas... attempt ${attempts + 1}`);
@@ -89,11 +92,11 @@ export default function GenerateQrCode({
 
   // Generate QR code when dialog opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && facilityId) {
       console.log("Dialog opened, will generate QR code...");
       generateQRCode();
     }
-  }, [isOpen, generateQRCode]);
+  }, [isOpen, generateQRCode, facilityId]);
 
   const downloadQRCode = () => {
     if (qrCodeUrl) {

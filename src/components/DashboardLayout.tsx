@@ -46,7 +46,7 @@ const navigation = [
   },
   {
     name: "Visitors",
-    href: "/dashboard/visitors",
+    href: "dashboard/visitors",
     icon: Users,
     roles: [UserRoles.FACILITY, UserRoles.SUPER_ADMIN], // Super-admin only
   },
@@ -90,10 +90,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const { status, data: session } = useSession();
-  const { data: currentUser } = useGetCurrentUser();
   const { userRole } = useRole();
-
-  console.log(currentUser, "currentUser");
 
   const handleSignOut = () => {
     signOut();

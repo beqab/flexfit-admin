@@ -159,10 +159,7 @@ export default function VisitorsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <GenerateQrCode
-            facilityId={currentUser?.facility?._id || ""}
-            facilityName={currentUser?.facility?.name || ""}
-          />
+          <GenerateQrCode />
           <Button>
             <UserPlus className="mr-2 h-4 w-4" />
             Add Visitor

@@ -1,4 +1,3 @@
-import { isServer } from "@tanstack/react-query";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
 import { getSession } from "next-auth/react";
@@ -55,13 +54,14 @@ type QueryParams = Record<string, string | number | boolean | null | undefined>;
 // Add interceptor to handle authorization tokens
 axiosInstance.interceptors.request.use(
   async (config) => {
-    const session = isServer ? null : await getSession();
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    console.log(session, "session++++");
-    const token = (session as any)?.user?.accessToken;
-    if (token && config.headers) {
-      config.headers[authHeader] = token;
+    // Only try to get session on client side
+    if (typeof window !== "undefined") {
+      const session = await getSession();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const token = (session as any)?.user?.accessToken;
+      if (token && config.headers) {
+        config.headers[authHeader] = token;
+      }
     }
 
     return config;
@@ -80,20 +80,21 @@ class APIClient<T> {
 
   //  get method with optional params and config
   async get<R = T>(
-    params?: Record<string, QueryParams>,
-    config?: AxiosRequestConfig,
-    id = ""
+    params?: Record<string, string | number | boolean | null | undefined>,
+    id = "",
+    config?: AxiosRequestConfig
   ) {
-    console.log("get", this.endpoint, params, config, id);
     try {
-      const response = await axiosInstance.get<R>(`${this.endpoint}/${id}`, {
-        params,
+      const url = id ? `${this.endpoint}/${id}` : this.endpoint;
+      console.log("params++++++", params);
+      const response = await axiosInstance.get<R>(this.endpoint, {
+        params: {
+          ...params,
+        },
         ...config,
       });
-      console.log("response", response);
       return response.data;
     } catch (error) {
-      console.log("error", error);
       if (axios.isAxiosError(error)) {
         throw this.handleApiError(error as IApiError);
       }
@@ -156,7 +157,7 @@ class APIClient<T> {
   // Error handling helper
   private handleApiError(error: IApiError) {
     if (error.response) {
-      return error.response;
+      return error.response.data;
     }
     return error;
   }

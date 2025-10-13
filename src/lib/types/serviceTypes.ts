@@ -5,6 +5,15 @@ export enum UserRoles {
 
 export type UserRole = UserRoles.FACILITY | UserRoles.SUPER_ADMIN;
 
+export type IPagination = {
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  itemsPerPage: number;
+  totalItems: number;
+  totalPages: number;
+};
+
 export interface IFacility {
   _id: string;
   name: string;
@@ -21,4 +30,20 @@ export interface IAdmin {
   role: UserRole;
   refreshToken: string;
   facility?: IFacility | null;
+}
+
+export interface IVisitor {
+  _id: string;
+  name?: string;
+  phone: string;
+}
+
+export interface IHistory {
+  _id: string;
+  activityName: string;
+  creditPayed: number;
+  facilityPayout: number;
+  visitDate: Date;
+  facility: IFacility;
+  user: IVisitor;
 }

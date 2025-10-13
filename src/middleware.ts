@@ -38,23 +38,30 @@ export default auth((req) => {
   const userRole = req.auth?.user?.role as string;
   const token = req.auth;
 
+  console.log("pathname rot", pathname);
+
   // Prevent redirect loops by allowing root path and login
   if (pathname === "/") {
+    console.log("pathname root111");
     return NextResponse.next();
   }
 
   // Allow access to login page and API routes
   if (pathname.startsWith("/api/") || pathname === "/") {
+    console.log("pathname root222");
     return NextResponse.next();
   }
 
   // If no user role, redirect to login
   if (!userRole) {
+    console.log("pathname root333");
+
     return NextResponse.redirect(new URL("/", req.url));
   }
 
   // Check super-admin only routes
   if (isSuperAdminRoute(pathname)) {
+    console.log("pathname root444");
     if (userRole !== UserRoles.SUPER_ADMIN) {
       // Redirect facility users to dashboard overview
       return NextResponse.redirect(new URL("/dashboard", req.url));
@@ -66,6 +73,8 @@ export default auth((req) => {
     pathname.startsWith("/dashboard") &&
     !isFacilityAccessibleRoute(pathname)
   ) {
+    console.log("pathname root555");
+    console.log("!isFacilityAccessibleRoute", pathname);
     if (userRole === UserRoles.FACILITY) {
       // Redirect facility users to accessible routes
       return NextResponse.redirect(new URL("/dashboard", req.url));
@@ -73,12 +82,17 @@ export default auth((req) => {
   }
 
   if (!isSuperAdminRoute(pathname)) {
+    console.log("pathname root666");
+    console.log("isSuperAdminRoute", isSuperAdminRoute(pathname));
+    console.log("userRole", pathname);
     if (userRole === UserRoles.SUPER_ADMIN) {
       return NextResponse.redirect(new URL("/super/dashboard", req.url));
     }
   }
 
   // Allow access if user has appropriate role
+
+  console.log("pathname root777 next");
   return NextResponse.next();
 });
 
