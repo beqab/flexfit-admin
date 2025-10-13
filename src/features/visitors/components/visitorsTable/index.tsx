@@ -123,7 +123,7 @@ export default function VisitorsTable() {
                   className="pl-8 w-64"
                 />
               </div>
-              {/* TODO: Add refresh button*/}
+
               <Button variant="outline" onClick={() => refetch()}>
                 <RefreshCcw className="mr-2 h-4 w-4" />
                 Refresh

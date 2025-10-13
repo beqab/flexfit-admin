@@ -37,11 +37,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // Call your authentication service
           const response = await createApiClient(API_ROUTES.LOGIN).post<{
             token: string;
+            refreshToken: string;
             admin: {
               _id: string;
               username: string;
               role: UserRole;
-              refreshToken: string;
             };
           }>({
             username: email,
@@ -58,7 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               role: response.admin.role,
               _id: response.admin._id,
               token: response.token,
-              refreshToken: response.admin.refreshToken,
+              refreshToken: response.refreshToken,
             };
             console.log("👤 User object created:", {
               ...user,
@@ -83,7 +83,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: any; user: any }) {
       if (user) {
         return {
           ...token,
@@ -91,8 +91,45 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           refreshToken: user.refreshToken,
           role: user.role,
           _id: user._id,
+          expiresAt: Date.now() + 1 * 60 * 1000, // 2 minutes
+          refreshAt: Date.now() + 60 * 60 * 1000, // Refresh after 1 minute
         };
       }
+      console.log("token before refresh111", token);
+      if (Date.now() > token.expiresAt) {
+        console.log("token before refresh", token);
+        try {
+          const response = await createApiClient(
+            API_ROUTES.REFRESH_TOKEN
+          ).post<{
+            token: string;
+            message: string;
+            refreshToken: string;
+            admin: {
+              _id: string;
+              username: string;
+              role: UserRole;
+              facilityId: string | null;
+            };
+          }>({
+            refreshToken: token.refreshToken,
+          });
+
+          console.log("✅ success response from refresh", response);
+
+          return {
+            ...token,
+            accessToken: response.token,
+            refreshToken: response.refreshToken,
+            expiresAt: Date.now() + 2 * 60 * 1000, // 2 minutes
+            refreshAt: Date.now() + 60 * 60 * 1000, // Refresh after 1 minute
+          };
+        } catch (error) {
+          console.error("❌ Refresh token error:", error);
+          return null;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
