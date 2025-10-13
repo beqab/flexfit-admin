@@ -5,6 +5,7 @@ import { signInSchema } from "./zod";
 import { createApiClient } from "./apiClient";
 import { API_ROUTES } from "./apiRotes";
 import { UserRole } from "./types/serviceTypes";
+import { cookies } from "next/headers";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -51,6 +52,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           console.log("📡 API Response:", response ? "Success" : "No response");
 
           if (response) {
+            const cookieStore = await cookies();
+            cookieStore.set("refresh_token", response.refreshToken, {
+              httpOnly: true, // Cannot be accessed by JavaScript
+              secure: process.env.NODE_ENV === "production", // HTTPS only in production
+              sameSite: "lax", // CSRF protection
+              maxAge: 60 * 60 * 24 * 7, // 7 days
+              path: "/",
+            });
+
             const user = {
               id: response.admin._id,
               email: response.admin.username,
@@ -58,12 +68,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               role: response.admin.role,
               _id: response.admin._id,
               token: response.token,
-              refreshToken: response.refreshToken,
             };
             console.log("👤 User object created:", {
               ...user,
               token: "***",
-              refreshToken: "***",
             });
             return user;
           }
@@ -88,17 +96,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return {
           ...token,
           accessToken: user.token,
-          refreshToken: user.refreshToken,
           role: user.role,
           _id: user._id,
-          expiresAt: Date.now() + 1 * 60 * 1000, // 2 minutes
-          refreshAt: Date.now() + 60 * 60 * 1000, // Refresh after 1 minute
+          expiresAt: Date.now() + 10 * 60 * 1000, // 2 minutes
         };
       }
-      console.log("token before refresh111", token);
+
+      console.log("token before refresh check", token);
+
+      // Check if access token is expired
       if (Date.now() > token.expiresAt) {
-        console.log("token before refresh", token);
+        console.log("Access token expired, refreshing...");
         try {
+          const cookieStore = await cookies();
+          const refreshToken = cookieStore.get("refresh_token")?.value;
+
+          if (!refreshToken) {
+            console.error("❌ No refresh token found in cookie");
+            return null;
+          }
+
           const response = await createApiClient(
             API_ROUTES.REFRESH_TOKEN
           ).post<{
@@ -112,20 +129,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               facilityId: string | null;
             };
           }>({
-            refreshToken: token.refreshToken,
+            refreshToken: refreshToken,
           });
 
-          console.log("✅ success response from refresh", response);
+          console.log("✅ Token refreshed successfully");
+
+          cookieStore.set("refresh_token", response.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 7, // 7 days
+            path: "/",
+          });
 
           return {
             ...token,
             accessToken: response.token,
-            refreshToken: response.refreshToken,
-            expiresAt: Date.now() + 2 * 60 * 1000, // 2 minutes
-            refreshAt: Date.now() + 60 * 60 * 1000, // Refresh after 1 minute
+            expiresAt: Date.now() + 10 * 60 * 1000, // 2 minutes
           };
         } catch (error) {
           console.error("❌ Refresh token error:", error);
+          // SECURITY: Clear the refresh token cookie on error
+          const cookieStore = await cookies();
+          cookieStore.delete("refresh_token");
           return null;
         }
       }
@@ -135,11 +161,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (token) {
         session.user.accessToken = token.accessToken;
-        session.user.refreshToken = token.refreshToken;
         session.user.role = token.role;
         session.user._id = token._id;
       }
       return session;
+    },
+  },
+  events: {
+    // Clear refresh token cookie on signout
+    async signOut() {
+      const cookieStore = await cookies();
+      cookieStore.delete("refresh_token");
     },
   },
   pages: {
@@ -147,6 +179,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   session: {
     strategy: "jwt",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
   },
   secret: process.env.NEXTAUTH_SECRET,
 });
