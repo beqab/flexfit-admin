@@ -34,7 +34,8 @@ export interface IAdmin {
 
 export interface IVisitor {
   _id: string;
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   phone: string;
 }
 

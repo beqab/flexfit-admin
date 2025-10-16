@@ -6,36 +6,36 @@ export default function StatsBar() {
     totalVisitors: 1247,
     activeVisitors: 89,
     newThisMonth: 12,
-    avgVisitsPerWeek: 3.2,
+    avgVisitsPerWeek: 320,
   };
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
         stat={stats.totalVisitors}
-        title="Total Visitors"
+        title="Total Visits"
+        descriptionText="All time"
+        icon={<Users className="h-4 w-4 text-muted-foreground" />}
+      />
+
+      <StatCard
+        stat={stats.avgVisitsPerWeek}
+        title="Unique Visitors"
         descriptionText="All time"
         icon={<Users className="h-4 w-4 text-muted-foreground" />}
       />
 
       <StatCard
         stat={stats.activeVisitors}
-        title="Active Members"
-        descriptionText="Currently active"
+        title="Total Visits "
+        descriptionText="Last 30 Days"
         icon={<UserCheck className="h-4 w-4 text-muted-foreground" />}
       />
 
       <StatCard
         stat={stats.newThisMonth}
-        title="New This Month"
-        descriptionText="+15% from last month"
+        title="Unique Visitors "
+        descriptionText="last 30 days"
         icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
-      />
-
-      <StatCard
-        stat={stats.avgVisitsPerWeek}
-        title="Avg Visits/Week"
-        descriptionText="Per active member"
-        icon={<Users className="h-4 w-4 text-muted-foreground" />}
       />
     </div>
   );

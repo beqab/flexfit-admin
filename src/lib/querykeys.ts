@@ -3,6 +3,7 @@ const QUERY_KEYS = {
     CURRENT: ["currentUser"],
   },
   VISITORS: {
+    LATEST: ["latest-visitors"],
     ALL: ({
       facilityId,
       limit,

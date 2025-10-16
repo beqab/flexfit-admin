@@ -39,9 +39,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { useGetVisitors } from "../../hooks/useGetVisitors";
+import { VisitDate } from "../visitDate";
+import { useRole } from "@/hooks/useRole";
+
+const limit = 10;
 
 export default function VisitorsTable() {
   const [searchTerm, setSearchTerm] = useState("");
+  const { isSuperAdmin } = useRole();
 
   const {
     data: visitorsData,
@@ -49,11 +54,12 @@ export default function VisitorsTable() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isRefetching,
     error,
     refetch,
   } = useGetVisitors({
     page: 1,
-    limit: 10,
+    limit,
   });
 
   // Intersection observer for infinite scroll
@@ -73,36 +79,6 @@ export default function VisitorsTable() {
 
   // Flatten all pages into a single array
   const allVisitors = visitorsData?.pages.flatMap((page) => page.data) || [];
-
-  const filteredVisitors = allVisitors.filter((visitor) => {
-    const matchesSearch =
-      visitor.user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      visitor.user.phone?.toLowerCase().includes(searchTerm.toLowerCase());
-    // For now, we'll skip status filtering since the API data doesn't have a status field yet
-    return matchesSearch;
-  });
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-      case "inactive":
-        return <Badge variant="secondary">Inactive</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
-  const getMembershipBadge = (type: string) => {
-    switch (type) {
-      case "Premium":
-        return <Badge className="bg-purple-100 text-purple-800">Premium</Badge>;
-      case "Basic":
-        return <Badge variant="outline">Basic</Badge>;
-      default:
-        return <Badge variant="outline">{type}</Badge>;
-    }
-  };
 
   return (
     <>
@@ -124,9 +100,17 @@ export default function VisitorsTable() {
                 />
               </div>
 
-              <Button variant="outline" onClick={() => refetch()}>
-                <RefreshCcw className="mr-2 h-4 w-4" />
-                Refresh
+              <Button
+                variant="outline"
+                onClick={() => refetch()}
+                disabled={isRefetching}
+              >
+                <RefreshCcw
+                  className={`mr-2 h-4 w-4 ${
+                    isRefetching ? "animate-spin" : ""
+                  }`}
+                />
+                {isRefetching ? "Refetching..." : "Refresh"}
               </Button>
             </div>
           </div>
@@ -137,20 +121,22 @@ export default function VisitorsTable() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Contact</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Membership</TableHead>
-                <TableHead>Total Visits</TableHead>
+
+                <TableHead>Activity</TableHead>
+
                 <TableHead>Payout</TableHead>
                 <TableHead>Last Visit</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
+
+                {isSuperAdmin && <TableHead className="w-[50px]"></TableHead>}
               </TableRow>
             </TableHeader>
             {isLoading && !visitorsData ? null : (
               <TableBody>
-                {filteredVisitors.map((visitor) => (
+                {allVisitors.map((visitor) => (
                   <TableRow key={visitor._id}>
                     <TableCell className="font-medium">
-                      {visitor.user.name || "N/A"}
+                      {visitor.user.firstName + " " + visitor.user.lastName ||
+                        "N/A"}
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
@@ -160,9 +146,9 @@ export default function VisitorsTable() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{getStatusBadge("active")}</TableCell>
-                    <TableCell>{getMembershipBadge("")}</TableCell>
-                    <TableCell>-</TableCell>
+
+                    <TableCell>{visitor?.activityName}</TableCell>
+
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <CreditCard className="h-3 w-3" />
@@ -170,30 +156,29 @@ export default function VisitorsTable() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 text-sm">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(visitor.visitDate).toLocaleDateString()}
-                      </div>
+                      <VisitDate date={visitor.visitDate} />
                     </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit Member</DropdownMenuItem>
-                          <DropdownMenuItem>Send Message</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">
-                            Deactivate
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+                    {isSuperAdmin && (
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem>View Details</DropdownMenuItem>
+                            <DropdownMenuItem>Edit Member</DropdownMenuItem>
+                            <DropdownMenuItem>Send Message</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-red-600">
+                              Deactivate
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
@@ -210,7 +195,7 @@ export default function VisitorsTable() {
               {error.message}
             </div>
           )}
-          {!isLoading && filteredVisitors.length === 0 && !error && (
+          {!isLoading && allVisitors.length === 0 && !error && (
             <div className="text-center py-7 text-muted-foreground">
               No visitors found
             </div>
@@ -227,7 +212,7 @@ export default function VisitorsTable() {
             </div>
           )}
           {/* End of list message */}
-          {!isLoading && !hasNextPage && filteredVisitors.length > 0 && (
+          {!isLoading && !hasNextPage && allVisitors.length > limit && (
             <div className="text-center py-4 text-sm text-muted-foreground border-t">
               No more visitors to load
             </div>

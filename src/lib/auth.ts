@@ -92,13 +92,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }: { token: any; user: any }) {
-      if (user) {
+      if (user && (!token.expiresAt || Date.now() < token.expiresAt)) {
+        console.log("user", user);
+        console.log("token+++++++", token);
         return {
           ...token,
           accessToken: user.token,
           role: user.role,
+          expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
           _id: user._id,
-          expiresAt: Date.now() + 10 * 60 * 1000, // 2 minutes
         };
       }
 
