@@ -75,7 +75,7 @@ export default function OverviewPage() {
   const { data: latestVisitorsData, isLoading } = useGetLatestVisitrs({
     limit: 10,
   });
-  const latestVisitors = latestVisitorsData?.data;
+  const latestVisitors = latestVisitorsData?.data || [];
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -194,14 +194,14 @@ export default function OverviewPage() {
       {/* Recent Activity and Upcoming Classes */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Recent Activity */}
-        {latestVisitors && (
-          <DashboardList
-            name="Recent Activity"
-            description="Latest check-ins and payouts"
-            items={latestVisitors}
-            renderItem={(item) => <RecentVisitItem item={item} />}
-          />
-        )}
+
+        <DashboardList
+          name="Recent Activity"
+          description="Latest check-ins and payouts"
+          items={latestVisitors}
+          isLoading={isLoading}
+          renderItem={(item) => <RecentVisitItem item={item} />}
+        />
 
         {/* Upcoming Classes */}
 

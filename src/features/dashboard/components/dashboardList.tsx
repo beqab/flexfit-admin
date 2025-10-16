@@ -5,12 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type DashboardListProps<T> = {
   name: string;
   description: string;
   items: T[];
   renderItem: (item: T) => React.ReactNode;
+  isLoading?: boolean;
 };
 
 function DashboardList<T>({
@@ -18,6 +20,7 @@ function DashboardList<T>({
   description,
   items,
   renderItem,
+  isLoading,
 }: DashboardListProps<T>) {
   return (
     <Card>
@@ -27,9 +30,13 @@ function DashboardList<T>({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {items.map((item, idx) => (
-            <div key={(item as any).id ?? idx}>{renderItem(item)}</div>
-          ))}
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, idx) => (
+                <Skeleton key={idx} className="h-12 w-full rounded-md" />
+              ))
+            : items.map((item, idx) => (
+                <div key={(item as any).id ?? idx}>{renderItem(item)}</div>
+              ))}
         </div>
       </CardContent>
     </Card>
