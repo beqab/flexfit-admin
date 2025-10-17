@@ -14,6 +14,25 @@ export type IPagination = {
   totalPages: number;
 };
 
+export type TDayOfWeek =
+  | "Monday"
+  | "Tuesday"
+  | "Wednesday"
+  | "Thursday"
+  | "Friday"
+  | "Saturday"
+  | "Sunday";
+
+export type TActivity = {
+  time: string;
+  description: string;
+};
+
+export type TWorkingHours = {
+  day: TDayOfWeek;
+  activities: TActivity[];
+}[];
+
 export interface IFacility {
   _id: string;
   name: string;
@@ -22,6 +41,7 @@ export interface IFacility {
   email: string;
   website: string;
   img: string;
+  workingHours: TWorkingHours;
 }
 
 export interface IAdmin {

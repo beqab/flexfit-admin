@@ -46,7 +46,7 @@ const navigation = [
   },
   {
     name: "Visitors",
-    href: "dashboard/visitors",
+    href: "/dashboard/visitors",
     icon: Users,
     roles: [UserRoles.FACILITY, UserRoles.SUPER_ADMIN], // Super-admin only
   },

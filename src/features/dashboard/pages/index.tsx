@@ -23,6 +23,8 @@ import DashboardList from "../components/dashboardList";
 import RecentVisitItem from "../components/recentVisitItm";
 import ActivityItem from "../components/activityitem";
 import useGetLatestVisitrs from "../hooks/useGetLatestVisitrs";
+import { useGetCurrentUser } from "@/lib/hooks/profile/useGetCurrentUser";
+import { TDayOfWeek } from "@/lib/types/serviceTypes";
 
 // Mock data - in real app, this would come from API
 const stats = {
@@ -71,10 +73,28 @@ const upcomingClasses = [
   },
 ];
 
+const daysMap = {
+  Monday: 1,
+  Tuesday: 2,
+  Wednesday: 3,
+  Thursday: 4,
+  Friday: 5,
+  Saturday: 6,
+  Sunday: 7,
+} as const;
+
 export default function OverviewPage() {
   const { data: latestVisitorsData, isLoading } = useGetLatestVisitrs({
     limit: 10,
   });
+  const { data: currentUser, isLoading: isCurrentUserLoading } =
+    useGetCurrentUser();
+
+  console.log(currentUser?.facility?.workingHours, "currentUser");
+
+  const workingHours = currentUser?.facility?.workingHours || [];
+
+  console.log(workingHours, "workingHours");
   const latestVisitors = latestVisitorsData?.data || [];
   return (
     <div className="space-y-6">
@@ -203,14 +223,27 @@ export default function OverviewPage() {
           renderItem={(item) => <RecentVisitItem item={item} />}
         />
 
-        {/* Upcoming Classes */}
-
-        <DashboardList
-          name="Upcoming Classes"
-          description="Today's class schedule"
-          items={upcomingClasses}
-          renderItem={(item) => <ActivityItem item={item} />}
-        />
+        {/* Weekly Schedule */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Weekly Schedule</CardTitle>
+            <CardDescription>Activities throughout the week</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isCurrentUserLoading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 7 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="h-16 w-full rounded-lg bg-gray-100 animate-pulse"
+                  />
+                ))}
+              </div>
+            ) : (
+              <ActivityItem workingHours={workingHours} />
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
