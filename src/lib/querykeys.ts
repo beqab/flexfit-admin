@@ -4,6 +4,7 @@ const QUERY_KEYS = {
   },
   VISITORS: {
     LATEST: ["visitors", "latest-visitors"],
+    STATS: ["visitors", "stats"],
     ALL: ({
       facilityId,
       limit,

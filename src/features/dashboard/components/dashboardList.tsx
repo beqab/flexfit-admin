@@ -7,21 +7,21 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-type DashboardListProps<T> = {
+type DashboardListProps = {
   name: string;
   description: string;
-  items: T[];
-  renderItem: (item: T) => React.ReactNode;
   isLoading?: boolean;
+  children: React.ReactNode;
+  error?: string;
 };
 
-function DashboardList<T>({
+function DashboardList({
   name,
   description,
-  items,
-  renderItem,
+  children,
   isLoading,
-}: DashboardListProps<T>) {
+  error,
+}: DashboardListProps) {
   return (
     <Card>
       <CardHeader>
@@ -30,13 +30,17 @@ function DashboardList<T>({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {isLoading
-            ? Array.from({ length: 4 }).map((_, idx) => (
-                <Skeleton key={idx} className="h-12 w-full rounded-md" />
-              ))
-            : items.map((item, idx) => (
-                <div key={(item as any).id ?? idx}>{renderItem(item)}</div>
-              ))}
+          {error ? (
+            <div className="text-destructive text-sm bg-destructive/10 p-3 rounded-md border border-destructive/30">
+              {error}
+            </div>
+          ) : isLoading ? (
+            Array.from({ length: 6 }).map((_, idx) => (
+              <Skeleton key={idx} className="h-12 w-full rounded-md" />
+            ))
+          ) : (
+            children
+          )}
         </div>
       </CardContent>
     </Card>

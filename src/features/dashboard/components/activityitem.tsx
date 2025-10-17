@@ -1,6 +1,6 @@
 "use client";
 
-import { TActivity, TWorkingHours, TDayOfWeek } from "@/lib/types/serviceTypes";
+import { TWorkingHours, TDayOfWeek } from "@/lib/types/serviceTypes";
 import { ActivityIcon, ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { useState } from "react";
 

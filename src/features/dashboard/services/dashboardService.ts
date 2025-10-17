@@ -7,10 +7,20 @@ export interface IVisitorsResponse {
   pagination: IPagination;
 }
 
+export interface IStatsData {
+  pendingPayoutSum: number;
+  allVisitors: number;
+  todayVisitors: number;
+  last30DaysVisitors: number;
+}
+
+const getStats = createApiClient<{ data: IStatsData }>(API_ROUTES.GET_STATS);
+
 const latestVisitors = createApiClient<IVisitorsResponse>(
   API_ROUTES.GET_VISITORS
 );
 
 export const dashboardService = {
   latestVisitors,
+  getStats,
 };
