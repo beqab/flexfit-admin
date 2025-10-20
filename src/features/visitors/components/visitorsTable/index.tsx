@@ -41,12 +41,15 @@ import { useState, useEffect } from "react";
 import { useGetVisitors } from "../../hooks/useGetVisitors";
 import { VisitDate } from "../visitDate";
 import { useRole } from "@/hooks/useRole";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import QUERY_KEYS from "@/lib/querykeys";
 
 const limit = 10;
 
 export default function VisitorsTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const { isSuperAdmin } = useRole();
+  const queryClient = useQueryClient();
 
   const {
     data: visitorsData,
@@ -102,7 +105,12 @@ export default function VisitorsTable() {
 
               <Button
                 variant="outline"
-                onClick={() => refetch()}
+                onClick={() => {
+                  refetch();
+                  queryClient.invalidateQueries({
+                    queryKey: QUERY_KEYS.VISITORS.ALL,
+                  });
+                }}
                 disabled={isRefetching}
               >
                 <RefreshCcw
@@ -152,7 +160,7 @@ export default function VisitorsTable() {
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <CreditCard className="h-3 w-3" />
-                        {visitor.creditPayed} ლ
+                        {visitor.facilityPayout} ლ
                       </div>
                     </TableCell>
                     <TableCell>

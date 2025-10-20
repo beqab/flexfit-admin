@@ -5,4 +5,6 @@ export const API_ROUTES = {
 
   GET_VISITORS: "/history/byFacility",
   GET_STATS: "/history/stats",
+
+  GET_FACILITIES: "/facility/all",
 };

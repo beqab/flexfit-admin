@@ -22,6 +22,7 @@ import {
   Users,
   Calendar,
   CreditCard,
+  Building2,
   QrCode,
   Settings,
   LogOut,
@@ -51,9 +52,9 @@ const navigation = [
     roles: [UserRoles.FACILITY, UserRoles.SUPER_ADMIN], // Super-admin only
   },
   {
-    name: "Classes",
-    href: "/dashboard/classes",
-    icon: Calendar,
+    name: "Facilities",
+    href: "/dashboard/facilities",
+    icon: Building2,
     roles: [UserRoles.SUPER_ADMIN], // Super-admin only
   },
   {
@@ -90,7 +91,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const { status, data: session } = useSession();
-  const { userRole } = useRole();
+  const { userRole, isSuperAdmin } = useRole();
 
   const handleSignOut = () => {
     signOut();
@@ -132,7 +133,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               return (
                 <Link
                   key={item.name}
-                  href={item.href}
+                  href={isSuperAdmin ? `/super${item.href}` : item.href}
                   className={cn(
                     "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
                     isActive
@@ -171,7 +172,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               return (
                 <Link
                   key={item.name}
-                  href={item.href}
+                  href={isSuperAdmin ? `/super${item.href}` : item.href}
                   className={cn(
                     "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
                     isActive

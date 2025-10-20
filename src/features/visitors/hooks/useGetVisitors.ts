@@ -20,7 +20,7 @@ export const useGetVisitors = ({
   params?: Record<string, string>;
 }) => {
   const queryResult = useInfiniteQuery<IVisitorsResponse, IApiError>({
-    queryKey: QUERY_KEYS.VISITORS.ALL({
+    queryKey: QUERY_KEYS.VISITORS.LIST({
       facilityId: facilityId || "",
       limit,
       params,

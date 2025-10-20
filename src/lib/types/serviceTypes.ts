@@ -42,6 +42,7 @@ export interface IFacility {
   website: string;
   img: string;
   workingHours: TWorkingHours;
+  totalPayout?: number;
 }
 
 export interface IAdmin {
