@@ -7,4 +7,5 @@ export const API_ROUTES = {
   GET_STATS: "/history/stats",
 
   GET_FACILITIES: "/facility/all",
+  GET_FACILITY_BY_ID: "/facility/byId",
 };

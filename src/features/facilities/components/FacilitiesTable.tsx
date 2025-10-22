@@ -40,13 +40,13 @@ import { Pagination } from "@/components/ui/pagination";
 import { useDebounce } from "@/hooks/useDebaunce";
 import SearchField from "@/components/ui/searchField";
 import RefreshBtn from "@/components/ui/refreshBtn";
+import Link from "next/link";
 
 const pageSize = 20;
 
 export default function FacilitiesTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const queryClient = useQueryClient();
 
   // Debounce search term to avoid excessive API calls (500ms delay)
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -70,7 +70,7 @@ export default function FacilitiesTable() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Check if we're waiting for debounce
+  // Check if waiting for debounce
   const isSearching = searchTerm !== debouncedSearchTerm;
 
   return (
@@ -187,7 +187,7 @@ export default function FacilitiesTable() {
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <CreditCard className="h-3 w-3" />
-                        {facility.totalPayout ? facility.totalPayout : 0} ლ
+                        {facility.payoutSum ? facility.payoutSum : 0} ლ
                       </div>
                     </TableCell>
                     <TableCell>
@@ -200,8 +200,13 @@ export default function FacilitiesTable() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
+                            <Link
+                              href={`/super/dashboard/facilities/${facility._id}`}
+                              className="flex items-center gap-2"
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem>
                             <Edit className="mr-2 h-4 w-4" />

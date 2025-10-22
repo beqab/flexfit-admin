@@ -87,7 +87,7 @@ class APIClient<T> {
     try {
       const url = id ? `${this.endpoint}/${id}` : this.endpoint;
       console.log("params++++++", params);
-      const response = await axiosInstance.get<R>(this.endpoint, {
+      const response = await axiosInstance.get<R>(url, {
         params: {
           ...params,
         },

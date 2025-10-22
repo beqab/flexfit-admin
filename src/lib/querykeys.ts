@@ -18,6 +18,10 @@ const QUERY_KEYS = {
   },
   FACILITIES: {
     ALL: ["facilities"],
+    BY_ID: ({ facilityId }: { facilityId: string }) => [
+      "facilities",
+      { facilityId },
+    ],
     LIST: ({
       page,
       limit,

@@ -33,16 +33,88 @@ export type TWorkingHours = {
   activities: TActivity[];
 }[];
 
+interface ICategory {
+  _id: string;
+  name: string;
+  key: string;
+}
+
+interface IPrice {
+  _id: string;
+  price: number;
+  text: string;
+  payout: number;
+}
+
+interface IRating {
+  equipmentAverage: number;
+  equipmentCount: number;
+  hygieneAverage: number;
+  hygieneCount: number;
+  overallAverage: number;
+  overallCount: number;
+  staffAverage: number;
+  staffCount: number;
+}
 export interface IFacility {
   _id: string;
   name: string;
   address: string;
   phone: string;
   email: string;
-  website: string;
+
+  imgs: string[];
+  new: boolean;
+  popular: boolean;
+  location: { Lat: number; Lon: number };
   img: string;
   workingHours: TWorkingHours;
   totalPayout?: number;
+  categories: ICategory[];
+  prices: IPrice[];
+  price: number;
+  payoutSum?: number;
+  rating: IRating;
+}
+
+export interface ISingleFacility {
+  _id: string;
+  name: {
+    [key: string]: string;
+  };
+  address: {
+    [key: string]: string;
+  };
+  phone: string;
+  email: string;
+  website: string;
+  imgs: string[];
+  new: boolean;
+  popular: boolean;
+  location: { Lat: number; Lon: number };
+  img: string;
+  workingHours: {
+    day: TDayOfWeek;
+    activities: {
+      time: string;
+      description: {
+        [key: string]: string;
+      };
+    }[];
+  }[];
+  totalPayout?: number;
+  categories: { _id: string; name: { [key: string]: string }; key: string }[];
+  prices: {
+    _id: string;
+    price: number;
+    payout: number;
+    text: {
+      [key: string]: string;
+    };
+  }[];
+  rating: IRating;
+  price: number;
+  payoutSum?: number;
 }
 
 export interface IAdmin {
