@@ -8,4 +8,6 @@ export const API_ROUTES = {
 
   GET_FACILITIES: "/facility/all",
   GET_FACILITY_BY_ID: "/facility/byId",
+  GET_CATEGORIES: "/facility/categories",
+  ADD_EDIT_FACILITY: "/facility/add-edit",
 };

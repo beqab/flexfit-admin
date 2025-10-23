@@ -20,12 +20,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ISingleFacility, TDayOfWeek } from "@/lib/types/serviceTypes";
-import { facilityFormSchema, FacilityFormData } from "../zod";
+import { facilityFormSchema, FacilityFormData } from "../../zod";
 import { X, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import FormField from "@/components/ui/form/formField";
 import FieldArrayWrapper from "./fieldArrayWrapper";
+import SelectCategory from "./selectCategory";
+import { useAddEditFacility } from "../../hooks/useAddEditFacility";
 
 interface EditFacilityDialogProps {
   facility: ISingleFacility;
@@ -43,6 +45,7 @@ export default function EditFacilityDialog({
   availableLanguages = ["en", "ka"],
 }: EditFacilityDialogProps) {
   // Convert ISingleFacility to FacilityFormData for Formik
+  const { mutate: addEditFacility } = useAddEditFacility();
   const initialValues: FacilityFormData = {
     _id: facility._id,
     name: facility.name as { [key: string]: string },
@@ -53,6 +56,7 @@ export default function EditFacilityDialog({
     new: facility.new,
     popular: facility.popular || true,
     location: facility.location,
+    about: facility.about as { [key: string]: string },
     img: facility.img || "",
     workingHours: facility.workingHours.map((wh) => ({
       ...wh,
@@ -87,6 +91,7 @@ export default function EditFacilityDialog({
       const facilityData: ISingleFacility = {
         _id: values._id,
         name: values.name,
+        about: values.about,
         address: values.address,
         phone: values.phone,
         email: values.email || "",
@@ -99,7 +104,6 @@ export default function EditFacilityDialog({
         location: values.location,
         img: values.img || "",
         workingHours: values.workingHours,
-
         categories: values.categories,
         prices: values.prices,
         rating: values.rating,
@@ -108,9 +112,19 @@ export default function EditFacilityDialog({
 
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 500));
-      onSave(facilityData);
-      toast.success("Facility updated successfully!");
-      onOpenChange(false);
+      addEditFacility(facilityData, {
+        onSuccess: () => {
+          toast.success("Facility updated successfully!");
+          onOpenChange(false);
+        },
+        onError: (error) => {
+          toast.error("Failed to update facility");
+          console.error("Error updating facility:", error);
+        },
+        onSettled: () => {
+          setSubmitting(false);
+        },
+      });
     } catch (error) {
       toast.error("Failed to update facility");
       console.error("Error updating facility:", error);
@@ -123,37 +137,18 @@ export default function EditFacilityDialog({
   const renderLanguageInputs = (
     fieldName: string,
     placeholder: string,
-    required: boolean = false
+    required: boolean = false,
+    type: string = "text"
   ) => {
     return availableLanguages.map((lang) => (
       <FormField
         key={lang}
         label={fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}
         name={`${fieldName}.${lang}`}
-        type="text"
+        type={type}
         placeholder={`${placeholder} (${lang.toUpperCase()})`}
         required={required}
       />
-    ));
-  };
-
-  // Helper function to render category language inputs
-  const renderCategoryLanguageInputs = (
-    categoryIndex: number,
-    formik: FormikProps<FacilityFormData>
-  ) => {
-    return availableLanguages.map((lang) => (
-      <Field key={lang} name={`categories.${categoryIndex}.name.${lang}`}>
-        {({ field, meta }: any) => (
-          <Input
-            {...field}
-            placeholder={`Category Name (${lang.toUpperCase()})`}
-            className={`flex-1 ${
-              meta.error && meta.touched ? "border-red-500" : ""
-            }`}
-          />
-        )}
-      </Field>
     ));
   };
 
@@ -327,6 +322,15 @@ export default function EditFacilityDialog({
                       placeholder="https://example.com/image.jpg"
                     />
 
+                    <div className="grid grid-cols-2 gap-4">
+                      {renderLanguageInputs(
+                        "about",
+                        "Tell us about this facility...",
+                        false,
+                        "textarea"
+                      )}
+                    </div>
+
                     <div className="grid grid-cols-3 gap-4">
                       <FormField
                         label="Base Price (ლ)"
@@ -423,13 +427,10 @@ export default function EditFacilityDialog({
                       <FieldArray name="categories">
                         {({ push }: { push: (value: any) => void }) => {
                           const addCategory = () => {
-                            const nameObject: { [key: string]: string } = {};
-                            availableLanguages.forEach((lang) => {
-                              nameObject[lang] = "";
-                            });
+                            // Add an empty category object that will be filled by SelectCategory
                             push({
                               _id: `cat-${Date.now()}`,
-                              name: nameObject,
+                              name: { en: "", ka: "" },
                               key: "",
                             });
                           };
@@ -460,34 +461,23 @@ export default function EditFacilityDialog({
                             (category: any, index: number) => (
                               <div key={category._id} className="space-y-2">
                                 <div className="flex gap-2">
-                                  {renderCategoryLanguageInputs(index, formik)}
-                                </div>
-                                <div className="flex gap-2">
-                                  <Field name={`categories.${index}.key`}>
-                                    {({ field, meta }: any) => (
-                                      <>
-                                        <Input
-                                          {...field}
-                                          placeholder="category-key"
-                                          className={`flex-1 ${
-                                            meta.error && meta.touched
-                                              ? "border-red-500"
-                                              : ""
-                                          }`}
-                                        />
-                                        {meta.error && meta.touched && (
-                                          <p className="text-xs text-red-500">
-                                            {meta.error}
-                                          </p>
-                                        )}
-                                      </>
-                                    )}
-                                  </Field>
+                                  <div className="flex-1">
+                                    <SelectCategory
+                                      name={`categories.${index}`}
+                                      label="Category"
+                                      placeholder="Select a category"
+                                      required={true}
+                                      selectedCategories={
+                                        form.values.categories
+                                      }
+                                    />
+                                  </div>
                                   <Button
                                     type="button"
                                     variant="destructive"
                                     size="icon"
                                     onClick={() => remove(index)}
+                                    className="self-end"
                                   >
                                     <X className="h-4 w-4" />
                                   </Button>

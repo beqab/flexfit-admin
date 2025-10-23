@@ -18,6 +18,7 @@ const QUERY_KEYS = {
   },
   FACILITIES: {
     ALL: ["facilities"],
+    CATEGORIES: ["facilities", "categories"],
     BY_ID: ({ facilityId }: { facilityId: string }) => [
       "facilities",
       { facilityId },

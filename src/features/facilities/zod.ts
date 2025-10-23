@@ -45,6 +45,7 @@ export const workingHoursSchema = z.object({
 export const facilityFormSchema = z.object({
   _id: z.string(),
   name: multilingualStringSchema,
+  about: multilingualStringSchema,
   address: multilingualStringSchema,
   phone: z.string().min(1, "Phone number is required"),
   email: z.string().email("Invalid email format").optional().or(z.literal("")),

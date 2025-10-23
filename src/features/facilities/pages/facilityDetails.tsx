@@ -20,8 +20,8 @@ import {
 import Image from "next/image";
 import { IFacility, ISingleFacility } from "@/lib/types/serviceTypes";
 import { useRouter } from "next/navigation";
-import EditFacilityDialog from "../components/EditFacilityDialog";
-import { useGetFacilityById } from "../hooks/getFacilityById";
+import EditFacilityDialog from "../components/addEditFacility/EditFacilityDialog";
+import { useGetFacilityById } from "../hooks/useGetFacilityById";
 
 enum Language {
   EN = "en",
@@ -35,6 +35,10 @@ const convertToIFacility = (
 ): IFacility => ({
   ...facility,
   name: facility.name[language] || "",
+  about:
+    typeof facility.about === "string"
+      ? facility.about
+      : facility.about?.[language] || "",
   address: facility.address[language] || "",
   workingHours: facility.workingHours.map((schedule) => ({
     ...schedule,
@@ -166,6 +170,20 @@ export default function FacilityDetails({
               </div>
             </CardContent>
           </Card>
+
+          {/* About Section */}
+          {facilityData.about && (
+            <Card>
+              <CardHeader>
+                <CardTitle>About</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground leading-relaxed">
+                  {facilityData.about}
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Working Hours */}
           <Card>

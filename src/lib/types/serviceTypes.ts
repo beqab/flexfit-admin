@@ -33,9 +33,17 @@ export type TWorkingHours = {
   activities: TActivity[];
 }[];
 
-interface ICategory {
+export interface ICategory {
   _id: string;
   name: string;
+  key: string;
+}
+
+export interface ISingleCategory {
+  _id: string;
+  name: {
+    [key: string]: string;
+  };
   key: string;
 }
 
@@ -62,6 +70,7 @@ export interface IFacility {
   address: string;
   phone: string;
   email: string;
+  about: string;
 
   imgs: string[];
   new: boolean;
@@ -88,6 +97,9 @@ export interface ISingleFacility {
   phone: string;
   email: string;
   website: string;
+  about: {
+    [key: string]: string;
+  };
   imgs: string[];
   new: boolean;
   popular: boolean;

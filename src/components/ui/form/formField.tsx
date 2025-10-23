@@ -2,6 +2,7 @@ import { Field } from "formik";
 import { Label } from "../label";
 import { Input } from "../input";
 import { cn } from "@/lib/utils";
+import { Textarea } from "../textarea";
 
 interface FormFieldProps {
   label?: string;
@@ -45,13 +46,22 @@ export default function FormField({
       <Field name={name} className={className}>
         {({ field, meta }: FieldRenderProps) => (
           <>
-            <Input
-              {...field}
-              id={name}
-              type={type}
-              placeholder={placeholder}
-              className={meta.error && meta.touched ? "border-red-500" : ""}
-            />
+            {type === "textarea" ? (
+              <Textarea
+                {...field}
+                id={name}
+                placeholder={placeholder}
+                className={meta.error && meta.touched ? "border-red-500" : ""}
+              />
+            ) : (
+              <Input
+                {...field}
+                id={name}
+                type={type}
+                placeholder={placeholder}
+                className={meta.error && meta.touched ? "border-red-500" : ""}
+              />
+            )}
             {meta.error && meta.touched && (
               <p className="text-xs text-red-500">{meta.error}</p>
             )}
