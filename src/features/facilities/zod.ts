@@ -43,7 +43,7 @@ export const workingHoursSchema = z.object({
 });
 
 export const facilityFormSchema = z.object({
-  _id: z.string(),
+  _id: z.string().optional(),
   name: multilingualStringSchema,
   about: multilingualStringSchema,
   address: multilingualStringSchema,

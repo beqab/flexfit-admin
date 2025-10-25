@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ICategory } from "@/lib/types/serviceTypes";
 
 interface SelectCategoryProps {
   name: string;

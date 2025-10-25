@@ -20,12 +20,13 @@ import {
 import Image from "next/image";
 import { IFacility, ISingleFacility } from "@/lib/types/serviceTypes";
 import { useRouter } from "next/navigation";
-import EditFacilityDialog from "../components/addEditFacility/EditFacilityDialog";
+import AddEditFacilityDialog from "../components/addEditFacility/AddEditFacilityDialog";
 import { useGetFacilityById } from "../hooks/useGetFacilityById";
 
 enum Language {
   EN = "en",
   KA = "ka",
+  RU = "ru",
 }
 
 // Convert ISingleFacility to IFacility format
@@ -125,23 +126,26 @@ export default function FacilityDetails({
         <Button
           variant="outline"
           size="sm"
-          onClick={() =>
-            setLanguage(language === Language.EN ? Language.KA : Language.EN)
-          }
+          onClick={() => {
+            const languages = [Language.EN, Language.KA, Language.RU];
+            const currentIndex = languages.indexOf(language);
+            const nextIndex = (currentIndex + 1) % languages.length;
+            setLanguage(languages[nextIndex]);
+          }}
           className="flex items-center gap-2"
         >
           <Languages className="h-4 w-4" />
-          {language === Language.EN ? Language.EN : Language.KA}
+          {language.toUpperCase()}
         </Button>
       </div>
 
       {/* Edit Dialog */}
-      <EditFacilityDialog
+      <AddEditFacilityDialog
         facility={rawFacilityData}
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         onSave={handleSaveFacility}
-        availableLanguages={[Language.EN, Language.KA]}
+        availableLanguages={[Language.EN, Language.KA, "ru"]} // Can easily add more languages
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

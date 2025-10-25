@@ -29,36 +29,80 @@ import FieldArrayWrapper from "./fieldArrayWrapper";
 import SelectCategory from "./selectCategory";
 import { useAddEditFacility } from "../../hooks/useAddEditFacility";
 
-interface EditFacilityDialogProps {
-  facility: ISingleFacility;
+interface AddEditFacilityDialogProps {
+  facility?: ISingleFacility; // Optional for add mode
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (facility: ISingleFacility) => void;
   availableLanguages?: string[];
 }
 
-export default function EditFacilityDialog({
+export default function AddEditFacilityDialog({
   facility,
   open,
   onOpenChange,
   onSave,
   availableLanguages = ["en", "ka"],
-}: EditFacilityDialogProps) {
-  // Convert ISingleFacility to FacilityFormData for Formik
+}: AddEditFacilityDialogProps) {
+  // Determine if this is add or edit mode
+  const isEditMode = !!facility?._id;
   const { mutate: addEditFacility } = useAddEditFacility();
+
+  // Create default facility data for add mode
+  const defaultFacility: ISingleFacility = {
+    _id: "",
+    name: availableLanguages.reduce(
+      (acc, lang) => ({ ...acc, [lang]: "" }),
+      {}
+    ),
+    address: availableLanguages.reduce(
+      (acc, lang) => ({ ...acc, [lang]: "" }),
+      {}
+    ),
+    phone: "",
+    email: "",
+    website: "",
+    about: availableLanguages.reduce(
+      (acc, lang) => ({ ...acc, [lang]: "" }),
+      {}
+    ),
+    imgs: [],
+    new: false,
+    popular: false,
+    location: { Lat: 0, Lon: 0 },
+    img: "",
+    workingHours: [],
+    categories: [],
+    prices: [],
+    rating: {
+      equipmentAverage: 0,
+      equipmentCount: 0,
+      hygieneAverage: 0,
+      hygieneCount: 0,
+      overallAverage: 0,
+      overallCount: 0,
+      staffAverage: 0,
+      staffCount: 0,
+    },
+    price: 0,
+    payoutSum: 0,
+  };
+
+  // Use provided facility or default for add mode
+  const facilityData = facility || defaultFacility;
   const initialValues: FacilityFormData = {
-    _id: facility._id,
-    name: facility.name as { [key: string]: string },
-    address: facility.address as { [key: string]: string },
-    phone: facility.phone,
-    email: facility.email || "",
-    imgs: (facility.imgs || []) as string[],
-    new: facility.new,
-    popular: facility.popular || true,
-    location: facility.location,
-    about: facility.about as { [key: string]: string },
-    img: facility.img || "",
-    workingHours: facility.workingHours.map((wh) => ({
+    _id: facilityData._id,
+    name: facilityData.name as { [key: string]: string },
+    address: facilityData.address as { [key: string]: string },
+    phone: facilityData.phone,
+    email: facilityData.email || "",
+    imgs: (facilityData.imgs || []) as string[],
+    new: facilityData.new,
+    popular: facilityData.popular || true,
+    location: facilityData.location,
+    about: facilityData.about as { [key: string]: string },
+    img: facilityData.img || "",
+    workingHours: facilityData.workingHours.map((wh) => ({
       ...wh,
       day: wh.day.trim() as TDayOfWeek, // Clean up any trailing spaces
       activities: wh.activities.map((activity) => ({
@@ -67,16 +111,16 @@ export default function EditFacilityDialog({
       })),
     })),
 
-    categories: facility.categories.map((cat) => ({
+    categories: facilityData.categories.map((cat) => ({
       ...cat,
       name: cat.name as { [key: string]: string },
     })),
-    prices: facility.prices.map((price) => ({
+    prices: facilityData.prices.map((price) => ({
       ...price,
       text: price.text as { [key: string]: string },
     })),
-    rating: facility.rating,
-    price: facility.price,
+    rating: facilityData.rating,
+    price: facilityData.price,
   };
 
   const handleSubmit = async (
@@ -89,7 +133,7 @@ export default function EditFacilityDialog({
     try {
       // Convert back to ISingleFacility format
       const facilityData: ISingleFacility = {
-        _id: values._id,
+        _id: values._id || "",
         name: values.name,
         about: values.about,
         address: values.address,
@@ -114,12 +158,23 @@ export default function EditFacilityDialog({
       await new Promise((resolve) => setTimeout(resolve, 500));
       addEditFacility(facilityData, {
         onSuccess: () => {
-          toast.success("Facility updated successfully!");
+          toast.success(
+            isEditMode
+              ? "Facility updated successfully!"
+              : "Facility created successfully!"
+          );
           onOpenChange(false);
         },
         onError: (error) => {
-          toast.error("Failed to update facility");
-          console.error("Error updating facility:", error);
+          toast.error(
+            isEditMode
+              ? "Failed to update facility"
+              : "Failed to create facility"
+          );
+          console.error(
+            `Error ${isEditMode ? "updating" : "creating"} facility:`,
+            error
+          );
         },
         onSettled: () => {
           setSubmitting(false);
@@ -200,9 +255,13 @@ export default function EditFacilityDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Facility</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? "Edit Facility" : "Add New Facility"}
+          </DialogTitle>
           <DialogDescription>
-            Update the facility information. Click save when you're done.
+            {isEditMode
+              ? "Update the facility information. Click save when you're done."
+              : "Fill in the facility information. Click save when you're done."}
           </DialogDescription>
         </DialogHeader>
 
@@ -246,14 +305,6 @@ export default function EditFacilityDialog({
           }}
         >
           {(formik) => {
-            console.log(
-              "🔄 Formik render - isValid:",
-              formik.isValid,
-              "errors:",
-              formik.errors,
-              "isSubmitting:",
-              formik.isSubmitting
-            );
             return (
               <Form>
                 {/* Validation Error Display */}
@@ -748,7 +799,11 @@ export default function EditFacilityDialog({
                       )
                     }
                   >
-                    {formik.isSubmitting ? "Saving..." : "Save Changes"}
+                    {formik.isSubmitting
+                      ? "Saving..."
+                      : isEditMode
+                      ? "Save Changes"
+                      : "Create Facility"}
                   </Button>
                 </DialogFooter>
               </Form>
