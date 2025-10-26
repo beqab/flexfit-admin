@@ -71,7 +71,22 @@ export default function AddEditFacilityDialog({
     popular: false,
     location: { Lat: 0, Lon: 0 },
     img: "",
-    workingHours: [],
+    workingHours:
+      availableLanguages.reduce((acc, lang) => {
+        const daysOfWeek: TDayOfWeek[] = [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday",
+        ];
+        return daysOfWeek.map((day) => ({
+          day,
+          activities: [],
+        }));
+      }, [] as any) || [],
     categories: [],
     prices: [],
     rating: {
@@ -110,7 +125,6 @@ export default function AddEditFacilityDialog({
         description: activity.description as { [key: string]: string },
       })),
     })),
-
     categories: facilityData.categories.map((cat) => ({
       ...cat,
       name: cat.name as { [key: string]: string },
