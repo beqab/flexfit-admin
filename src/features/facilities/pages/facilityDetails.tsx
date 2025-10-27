@@ -22,11 +22,11 @@ import { IFacility, ISingleFacility } from "@/lib/types/serviceTypes";
 import { useRouter } from "next/navigation";
 import AddEditFacilityDialog from "../components/addEditFacility/AddEditFacilityDialog";
 import { useGetFacilityById } from "../hooks/useGetFacilityById";
+import AdminsList from "../components/facilityAdmin/adminsList";
 
 enum Language {
   EN = "en",
   KA = "ka",
-  RU = "ru",
 }
 
 // Convert ISingleFacility to IFacility format
@@ -127,7 +127,7 @@ export default function FacilityDetails({
           variant="outline"
           size="sm"
           onClick={() => {
-            const languages = [Language.EN, Language.KA, Language.RU];
+            const languages = [Language.EN, Language.KA];
             const currentIndex = languages.indexOf(language);
             const nextIndex = (currentIndex + 1) % languages.length;
             setLanguage(languages[nextIndex]);
@@ -145,7 +145,7 @@ export default function FacilityDetails({
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         onSave={handleSaveFacility}
-        availableLanguages={[Language.EN, Language.KA, "ru"]} // Can easily add more languages
+        availableLanguages={[Language.EN, Language.KA]} // Can easily add more languages
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -370,6 +370,7 @@ export default function FacilityDetails({
           </Card>
         </div>
       </div>
+      <AdminsList facilityId={facilityId} />
     </div>
   );
 }

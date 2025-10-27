@@ -10,4 +10,7 @@ export const API_ROUTES = {
   GET_FACILITY_BY_ID: "/facility/byId",
   GET_CATEGORIES: "/facility/categories",
   ADD_EDIT_FACILITY: "/facility/add-edit",
+
+  GET_FACILITY_ADMINS: "/admin/auth/facility",
+  ADD_FACILITY_ADMIN: "/admin/auth/add",
 };

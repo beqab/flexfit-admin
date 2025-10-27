@@ -1,6 +1,7 @@
 import { createApiClient } from "@/lib/apiClient";
 import { API_ROUTES } from "@/lib/apiRotes";
 import {
+  IAdmin,
   ICategory,
   IFacility,
   IPagination,
@@ -26,9 +27,17 @@ const addEditFacility = createApiClient<ISingleFacility>(
   API_ROUTES.ADD_EDIT_FACILITY
 );
 
+const getFacilityAdmins = createApiClient<IAdmin[]>(
+  API_ROUTES.GET_FACILITY_ADMINS
+);
+
+const addAdmin = createApiClient<IAdmin>(API_ROUTES.ADD_FACILITY_ADMIN);
+
 export const facilityService = {
   getFacilities,
   getFacilityById,
   getCategories,
   addEditFacility,
+  getFacilityAdmins,
+  addAdmin,
 };

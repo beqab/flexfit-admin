@@ -17,6 +17,12 @@ const QUERY_KEYS = {
     }) => ["visitors", { facilityId, limit, params }],
   },
   FACILITIES: {
+    ALL_ADMINS: ["facilities", "admins"],
+    ADMINS: ({ facilityId }: { facilityId: string }) => [
+      "facilities",
+      "admins",
+      { facilityId },
+    ],
     ALL: ["facilities"],
     CATEGORIES: ["facilities", "categories"],
     BY_ID: ({ facilityId }: { facilityId: string }) => [

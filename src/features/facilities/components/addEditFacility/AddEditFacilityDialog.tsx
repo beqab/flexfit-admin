@@ -34,15 +34,25 @@ interface AddEditFacilityDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (facility: ISingleFacility) => void;
-  availableLanguages?: string[];
+  availableLanguages: string[];
 }
+
+type TWorkingHours = {
+  day: TDayOfWeek;
+  activities: {
+    time: string;
+    description: {
+      [key: string]: string;
+    };
+  }[];
+}[];
 
 export default function AddEditFacilityDialog({
   facility,
   open,
   onOpenChange,
   onSave,
-  availableLanguages = ["en", "ka"],
+  availableLanguages,
 }: AddEditFacilityDialogProps) {
   // Determine if this is add or edit mode
   const isEditMode = !!facility?._id;
@@ -86,7 +96,7 @@ export default function AddEditFacilityDialog({
           day,
           activities: [],
         }));
-      }, [] as any) || [],
+      }, [] as TWorkingHours) || [],
     categories: [],
     prices: [],
     rating: {
@@ -117,14 +127,16 @@ export default function AddEditFacilityDialog({
     location: facilityData.location,
     about: facilityData.about as { [key: string]: string },
     img: facilityData.img || "",
-    workingHours: facilityData.workingHours.map((wh) => ({
-      ...wh,
-      day: wh.day.trim() as TDayOfWeek, // Clean up any trailing spaces
-      activities: wh.activities.map((activity) => ({
-        ...activity,
-        description: activity.description as { [key: string]: string },
-      })),
-    })),
+    workingHours: !facilityData.workingHours.length
+      ? defaultFacility.workingHours
+      : facilityData.workingHours.map((wh) => ({
+          ...wh,
+          day: wh.day.trim() as TDayOfWeek, // Clean up any trailing spaces
+          activities: wh.activities.map((activity) => ({
+            ...activity,
+            description: activity.description as { [key: string]: string },
+          })),
+        })),
     categories: facilityData.categories.map((cat) => ({
       ...cat,
       name: cat.name as { [key: string]: string },
