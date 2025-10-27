@@ -80,3 +80,11 @@ export const facilityFormSchema = z.object({
 });
 
 export type FacilityFormData = z.infer<typeof facilityFormSchema>;
+
+// Add Admin validation schema
+export const addAdminSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export type AddAdminFormData = z.infer<typeof addAdminSchema>;
