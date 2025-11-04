@@ -5,6 +5,8 @@ export const API_ROUTES = {
 
   GET_VISITORS: "/history/byFacility",
   GET_STATS: "/history/stats",
+  START_FACILITY_PAYOUT: "/history/startPayout",
+  FINISH_FACILITY_PAYOUT: "/payout/create",
 
   GET_FACILITIES: "/facility/all",
   GET_FACILITY_BY_ID: "/facility/byId",

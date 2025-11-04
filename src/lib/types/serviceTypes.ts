@@ -83,6 +83,8 @@ export interface IFacility {
   prices: IPrice[];
   price: number;
   payoutSum?: number;
+  pendingPayout?: number;
+  allTimePayout?: number;
   rating: IRating;
 }
 

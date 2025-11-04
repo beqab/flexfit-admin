@@ -33,6 +33,17 @@ const getFacilityAdmins = createApiClient<IAdmin[]>(
 
 const addAdmin = createApiClient<IAdmin>(API_ROUTES.ADD_FACILITY_ADMIN);
 
+// Payout processing
+type StartPayoutResponse = { payoutId: string; startedAt: string };
+
+const startFacilityPayout = createApiClient<StartPayoutResponse>(
+  API_ROUTES.START_FACILITY_PAYOUT
+);
+
+const finishFacilityPayout = createApiClient<{ facilityId: string }>(
+  API_ROUTES.FINISH_FACILITY_PAYOUT
+);
+
 export const facilityService = {
   getFacilities,
   getFacilityById,
@@ -40,4 +51,6 @@ export const facilityService = {
   addEditFacility,
   getFacilityAdmins,
   addAdmin,
+  startFacilityPayout,
+  finishFacilityPayout,
 };

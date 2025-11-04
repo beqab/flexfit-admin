@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import AddEditFacilityDialog from "../components/addEditFacility/AddEditFacilityDialog";
 import { useGetFacilityById } from "../hooks/useGetFacilityById";
 import AdminsList from "../components/facilityAdmin/adminsList";
+import ProcessPayout from "../components/processPayout";
 
 enum Language {
   EN = "en",
@@ -109,8 +110,12 @@ export default function FacilityDetails({
           Edit Facility
         </Button>
       </div>
-
-      {/* Status Badges & Language Toggle */}
+      <ProcessPayout
+        payout={facilityData.payoutSum}
+        facilityId={facilityData._id}
+        pendingPayout={facilityData.pendingPayout}
+      />
+      .{/* Status Badges & Language Toggle */}
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
           {facilityData.new && <Badge variant="default">New</Badge>}
@@ -138,7 +143,6 @@ export default function FacilityDetails({
           {language.toUpperCase()}
         </Button>
       </div>
-
       {/* Edit Dialog */}
       <AddEditFacilityDialog
         facility={rawFacilityData}
@@ -147,7 +151,6 @@ export default function FacilityDetails({
         onSave={handleSaveFacility}
         availableLanguages={[Language.EN, Language.KA]} // Can easily add more languages
       />
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Main Content */}
         <div className="lg:col-span-2 space-y-6">
